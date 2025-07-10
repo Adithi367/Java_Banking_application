@@ -424,7 +424,7 @@ public class Manager extends Admin {
                     sqlDate = java.sql.Date.valueOf(date);
                     break;
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Invalid date format! Please use YYYY-MM-DD (e.g., 2024-06-23).");
+                    System.out.println("Invalid date format! Please use YYYY-MM-DD");
                 }
             }
 
