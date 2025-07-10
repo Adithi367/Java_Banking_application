@@ -413,12 +413,19 @@ public class Manager extends Admin {
     }
     public void report(){
 
-            System.out.println("Enter the date in this format YYYY-MM-DD");
-            date = s.nextLine().trim();
 
-            if (!date.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                System.out.println("Invalid date format. Please use YYYY-MM-DD.");
-                return;
+            java.sql.Date sqlDate = null;
+
+
+            while (true) {
+                System.out.println("Enter the date in this format YYYY-MM-DD:");
+                date = s.nextLine().trim();
+                try {
+                    sqlDate = java.sql.Date.valueOf(date);
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid date format! Please use YYYY-MM-DD (e.g., 2024-06-23).");
+                }
             }
 
             String query13 = "SELECT t.Transaction_id, a.account_id, t.amount, t.type, a.balance, t.date " +
@@ -429,29 +436,35 @@ public class Manager extends Admin {
 
             try (Connection dbconnection = dbConnection.getConnection();
                  PreparedStatement p = dbconnection.prepareStatement(query13)) {
-                p.setDate(1, Date.valueOf(date));
+
+                p.setDate(1, sqlDate);
                 p.setString(2, mmid);
                 ResultSet r = p.executeQuery();
 
-                System.out.println("Transaction Id    Account Id    Amount    Type   Current Balance   Date\n-----------------------------------------------------------------");
-                boolean hasResults = false;
+                System.out.println("Transaction Id | Account Id | Amount | Type | Balance | Date");
+                System.out.println("---------------------------------------------------------------");
+
+                boolean found = false;
                 while (r.next()) {
-                    hasResults = true;
-                    System.out.println(r.getInt("Transaction_id") + "|" +
-                            r.getString("account_id") + "|" +
-                            r.getInt("amount") + "|" +
-                            r.getString("type") + "|" +
-                            r.getInt("balance") + "|" +
+                    found = true;
+                    System.out.println(r.getInt("Transaction_id") + " | " +
+                            r.getString("account_id") + " | " +
+                            r.getInt("amount") + " | " +
+                            r.getString("type") + " | " +
+                            r.getInt("balance") + " | " +
                             r.getDate("date"));
                 }
 
-                if (!hasResults) {
-                    System.out.println("No transactions found for this date.");
+                if (!found) {
+                    System.out.println("No transactions found on this date.");
                 }
+
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println("Error fetching report: " + e.getMessage());
             }
         }
+
+
 
 
 
